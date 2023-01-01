@@ -30,5 +30,5 @@ int main()
     a[7].push(18);
     a[7].push(20);
 
-    winnerTree x(8);
+    winnerTree x(8, a);
 }
