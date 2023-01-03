@@ -3,30 +3,75 @@
 #include <stack>
 using namespace std;
 
-winnerTree::winnerTree(double k, stack<int> *r)
+winnerTree::winnerTree(int k, stack<int> *r)
 {
-    K = k;
     records = r;
-    size = (int)pow(2, k);
-    tree = new int[size];
+    K = k;
+    size = k * 2;
+    tree = new Node[size];
     for (int i = k; i < size; i++)
     {
-        int first = i % (int)k;
-        tree[i] = records[first].top();
+        int first = i % k;
+        tree[i].data = records[first].top();
+        tree[i].run = first;
         records[first].pop();
     }
 }
-void winnerTree::build()
+
+winnerTree::~winnerTree()
 {
-    build(0);
+    delete[] tree;
 }
 
-void winnerTree::build(int index)
+void winnerTree::build()
 {
-    if (index < size)
+    for (int i = size - 1; i > 0; i -= 2)
     {
-        build(leftChild(index));
-        build(rightChild(index));
-        tree[index] = tree[left] < tree[right] ? tree[left] : tree[right];
+        if (tree[i].data <= tree[i - 1].data)
+        {
+            tree[parent(i)].data = tree[i].data;
+            tree[parent(i)].run = tree[i].run;
+        }
+        else
+        {
+            tree[parent(i)].data = tree[i - 1].data;
+            tree[parent(i)].run = tree[i - 1].run;
+        }
     }
+}
+
+int winnerTree::pop()
+{
+    Node top = tree[1];
+    int run = top.run;
+    // update a element into the leaf node
+    tree[run + K].data = records[run].top();
+    int index = parent(run + K);
+    // update the winner tree
+    while (index >= 1)
+    {
+        if (tree[leftChild(index)].data <= tree[rightChild(index)].data)
+        {
+            tree[index].data = tree[leftChild(index)].data;
+            tree[index].run = tree[leftChild(index)].run;
+        }
+        else
+        {
+            tree[index].data = tree[rightChild(index)].data;
+            tree[index].run = tree[rightChild(index)].run;
+        }
+        index = parent(index);
+    }
+    records[run].pop();
+    return top.data;
+}
+
+ostream &operator<<(ostream &os, winnerTree &s)
+{
+    for (int i = 1; i < s.size; i++)
+    {
+        os << s.tree[i].data << " ";
+    }
+    os << endl;
+    return os;
 }
