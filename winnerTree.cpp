@@ -2,7 +2,6 @@
 #include <math.h>
 #include <stack>
 using namespace std;
-
 winnerTree::winnerTree(int k, stack<int> *r)
 {
     records = r;
